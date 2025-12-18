@@ -1,135 +1,124 @@
-{\rtf1\ansi\ansicpg1251\cocoartf2822
-\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
-{\colortbl;\red255\green255\blue255;}
-{\*\expandedcolortbl;;}
-\paperw11900\paperh16840\margl1440\margr1440\vieww29200\viewh16020\viewkind0
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+-- Создание базы данных
+DROP DATABASE IF EXISTS university_schedule;
+CREATE DATABASE university_schedule 
+CHARACTER SET utf8mb4 
+COLLATE utf8mb4_unicode_ci;
 
-\f0\fs24 \cf0 \
--- \uc0\u1057 \u1054 \u1047 \u1044 \u1040 \u1053 \u1048 \u1045  \u1041 \u1040 \u1047 \u1067  \u1044 \u1040 \u1053 \u1053 \u1067 \u1061  \u1048  \u1058 \u1040 \u1041 \u1051 \u1048 \u1062 \
-\
-\
--- \uc0\u1057 \u1086 \u1079 \u1076 \u1072 \u1085 \u1080 \u1077  \u1073 \u1072 \u1079 \u1099  \u1076 \u1072 \u1085 \u1085 \u1099 \u1093 \
-DROP DATABASE IF EXISTS university_schedule;\
-CREATE DATABASE university_schedule \
-CHARACTER SET utf8mb4 \
-COLLATE utf8mb4_unicode_ci;\
-\
-USE university_schedule;\
-\
--- \uc0\u1058 \u1072 \u1073 \u1083 \u1080 \u1094 \u1072  \u1087 \u1086 \u1083 \u1100 \u1079 \u1086 \u1074 \u1072 \u1090 \u1077 \u1083 \u1077 \u1081 \
-CREATE TABLE `user` (\
-    `id` INT NOT NULL AUTO_INCREMENT,\
-    `email` VARCHAR(255) NOT NULL,\
-    `password_hash` VARCHAR(255) NOT NULL,\
-    `role` ENUM('student', 'teacher', 'admin') NOT NULL DEFAULT 'student',\
-    `full_name` VARCHAR(255) NOT NULL,\
-    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\
-    PRIMARY KEY (`id`),\
-    UNIQUE KEY `email_UNIQUE` (`email`)\
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\
-\
--- \uc0\u1058 \u1072 \u1073 \u1083 \u1080 \u1094 \u1072  \u1091 \u1095 \u1077 \u1073 \u1085 \u1099 \u1093  \u1075 \u1088 \u1091 \u1087 \u1087 \
-CREATE TABLE `group` (\
-    `id` INT NOT NULL AUTO_INCREMENT,\
-    `name` VARCHAR(50) NOT NULL,\
-    `faculty` VARCHAR(150) NOT NULL,\
-    `course` TINYINT NOT NULL,\
-    PRIMARY KEY (`id`),\
-    CONSTRAINT `chk_course_range` CHECK (`course` BETWEEN 1 AND 6)\
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\
-\
--- \uc0\u1058 \u1072 \u1073 \u1083 \u1080 \u1094 \u1072  \u1089 \u1090 \u1091 \u1076 \u1077 \u1085 \u1090 \u1086 \u1074 \
-CREATE TABLE `student` (\
-    `user_id` INT NOT NULL,\
-    `group_id` INT NOT NULL,\
-    `student_card_number` VARCHAR(20) NOT NULL,\
-    PRIMARY KEY (`user_id`),\
-    UNIQUE KEY `student_card_number_UNIQUE` (`student_card_number`),\
-    KEY `fk_student_group_idx` (`group_id`),\
-    CONSTRAINT `fk_student_user` FOREIGN KEY (`user_id`) \
-        REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,\
-    CONSTRAINT `fk_student_group` FOREIGN KEY (`group_id`) \
-        REFERENCES `group` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE\
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\
-\
--- \uc0\u1058 \u1072 \u1073 \u1083 \u1080 \u1094 \u1072  \u1087 \u1088 \u1077 \u1087 \u1086 \u1076 \u1072 \u1074 \u1072 \u1090 \u1077 \u1083 \u1077 \u1081 \
-CREATE TABLE `teacher` (\
-    `user_id` INT NOT NULL,\
-    `department` VARCHAR(150) NOT NULL,\
-    `academic_degree` VARCHAR(100) DEFAULT NULL,\
-    PRIMARY KEY (`user_id`),\
-    CONSTRAINT `fk_teacher_user` FOREIGN KEY (`user_id`) \
-        REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE\
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\
-\
--- \uc0\u1058 \u1072 \u1073 \u1083 \u1080 \u1094 \u1072  \u1087 \u1088 \u1077 \u1076 \u1084 \u1077 \u1090 \u1086 \u1074 \
-CREATE TABLE `subject` (\
-    `id` INT NOT NULL AUTO_INCREMENT,\
-    `name` VARCHAR(200) NOT NULL,\
-    `code` VARCHAR(50) NOT NULL,\
-    PRIMARY KEY (`id`),\
-    UNIQUE KEY `code_UNIQUE` (`code`)\
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\
-\
--- \uc0\u1058 \u1072 \u1073 \u1083 \u1080 \u1094 \u1072  \u1072 \u1091 \u1076 \u1080 \u1090 \u1086 \u1088 \u1080 \u1081 \
-CREATE TABLE `classroom` (\
-    `id` INT NOT NULL AUTO_INCREMENT,\
-    `number` VARCHAR(20) NOT NULL,\
-    `building` VARCHAR(100) NOT NULL,\
-    `capacity` SMALLINT NOT NULL,\
-    `type` ENUM('lecture', 'practice', 'lab', 'computer') NOT NULL,\
-    PRIMARY KEY (`id`)\
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\
-\
--- \uc0\u1058 \u1072 \u1073 \u1083 \u1080 \u1094 \u1072  \u1079 \u1072 \u1085 \u1103 \u1090 \u1080 \u1081  (\u1088 \u1072 \u1089 \u1087 \u1080 \u1089 \u1072 \u1085 \u1080 \u1077 )\
-CREATE TABLE `class` (\
-    `id` INT NOT NULL AUTO_INCREMENT,\
-    `subject_id` INT NOT NULL,\
-    `teacher_id` INT NOT NULL,\
-    `group_id` INT NOT NULL,\
-    `classroom_id` INT NOT NULL,\
-    `type` ENUM('lecture', 'practice', 'lab', 'seminar') NOT NULL,\
-    `date` DATE NOT NULL,\
-    `start_time` TIME NOT NULL,\
-    `end_time` TIME NOT NULL,\
-    `week_number` TINYINT DEFAULT NULL,\
-    `day_of_week` TINYINT DEFAULT NULL,\
-    PRIMARY KEY (`id`),\
-    KEY `fk_class_subject_idx` (`subject_id`),\
-    KEY `fk_class_teacher_idx` (`teacher_id`),\
-    KEY `fk_class_group_idx` (`group_id`),\
-    KEY `fk_class_classroom_idx` (`classroom_id`),\
-    KEY `idx_class_date` (`date`),\
-    KEY `idx_class_teacher_date` (`teacher_id`, `date`),\
-    KEY `idx_class_group_date` (`group_id`, `date`),\
-    CONSTRAINT `chk_day_of_week` CHECK (`day_of_week` BETWEEN 0 AND 6),\
-    CONSTRAINT `chk_week_number` CHECK (`week_number` BETWEEN 1 AND 52),\
-    CONSTRAINT `fk_class_subject` FOREIGN KEY (`subject_id`) \
-        REFERENCES `subject` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,\
-    CONSTRAINT `fk_class_teacher` FOREIGN KEY (`teacher_id`) \
-        REFERENCES `teacher` (`user_id`) ON DELETE RESTRICT ON UPDATE CASCADE,\
-    CONSTRAINT `fk_class_group` FOREIGN KEY (`group_id`) \
-        REFERENCES `group` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,\
-    CONSTRAINT `fk_class_classroom` FOREIGN KEY (`classroom_id`) \
-        REFERENCES `classroom` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE\
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\
-\
--- \uc0\u1058 \u1072 \u1073 \u1083 \u1080 \u1094 \u1072  \u1080 \u1079 \u1084 \u1077 \u1085 \u1077 \u1085 \u1080 \u1081  \u1088 \u1072 \u1089 \u1087 \u1080 \u1089 \u1072 \u1085 \u1080 \u1103 \
-CREATE TABLE `schedule_change` (\
-    `id` INT NOT NULL AUTO_INCREMENT,\
-    `original_class_id` INT NOT NULL,\
-    `new_date` DATE DEFAULT NULL,\
-    `new_start_time` TIME DEFAULT NULL,\
-    `new_classroom_id` INT DEFAULT NULL,\
-    `status` ENUM('cancelled', 'moved', 'replaced') NOT NULL,\
-    `reason` TEXT,\
-    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\
-    PRIMARY KEY (`id`),\
-    KEY `fk_schedule_change_class_idx` (`original_class_id`),\
-    KEY `fk_schedule_change_classroom_idx` (`new_classroom_id`),\
-    CONSTRAINT `fk_schedule_change_class` FOREIGN KEY (`original_class_id`) \
-        REFERENCES `class` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,\
-    CONSTRAINT `fk_schedule_change_classroom` FOREIGN KEY (`new_classroom_id`) \
-        REFERENCES `classroom` (`id`) ON DELETE SET NULL ON UPDATE CASCADE\
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;}
+USE university_schedule;
+
+-- Таблица пользователей
+CREATE TABLE `user` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `email` VARCHAR(255) NOT NULL,
+    `password_hash` VARCHAR(255) NOT NULL,
+    `role` ENUM('student', 'teacher', 'admin') NOT NULL DEFAULT 'student',
+    `full_name` VARCHAR(255) NOT NULL,
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `email_UNIQUE` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Таблица учебных групп
+CREATE TABLE `group` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(50) NOT NULL,
+    `faculty` VARCHAR(150) NOT NULL,
+    `course` TINYINT NOT NULL,
+    PRIMARY KEY (`id`),
+    CONSTRAINT `chk_course_range` CHECK (`course` BETWEEN 1 AND 6)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Таблица студентов
+CREATE TABLE `student` (
+    `user_id` INT NOT NULL,
+    `group_id` INT NOT NULL,
+    `student_card_number` VARCHAR(20) NOT NULL,
+    PRIMARY KEY (`user_id`),
+    UNIQUE KEY `student_card_number_UNIQUE` (`student_card_number`),
+    KEY `fk_student_group_idx` (`group_id`),
+    CONSTRAINT `fk_student_user` FOREIGN KEY (`user_id`) 
+        REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `fk_student_group` FOREIGN KEY (`group_id`) 
+        REFERENCES `group` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Таблица преподавателей
+CREATE TABLE `teacher` (
+    `user_id` INT NOT NULL,
+    `department` VARCHAR(150) NOT NULL,
+    `academic_degree` VARCHAR(100) DEFAULT NULL,
+    PRIMARY KEY (`user_id`),
+    CONSTRAINT `fk_teacher_user` FOREIGN KEY (`user_id`) 
+        REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Таблица предметов
+CREATE TABLE `subject` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(200) NOT NULL,
+    `code` VARCHAR(50) NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `code_UNIQUE` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Таблица аудиторий
+CREATE TABLE `classroom` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `number` VARCHAR(20) NOT NULL,
+    `building` VARCHAR(100) NOT NULL,
+    `capacity` SMALLINT NOT NULL,
+    `type` ENUM('lecture', 'practice', 'lab', 'computer') NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Таблица занятий (расписание)
+CREATE TABLE `class` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `subject_id` INT NOT NULL,
+    `teacher_id` INT NOT NULL,
+    `group_id` INT NOT NULL,
+    `classroom_id` INT NOT NULL,
+    `type` ENUM('lecture', 'practice', 'lab', 'seminar') NOT NULL,
+    `date` DATE NOT NULL,
+    `start_time` TIME NOT NULL,
+    `end_time` TIME NOT NULL,
+    `week_number` TINYINT DEFAULT NULL,
+    `day_of_week` TINYINT DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `fk_class_subject_idx` (`subject_id`),
+    KEY `fk_class_teacher_idx` (`teacher_id`),
+    KEY `fk_class_group_idx` (`group_id`),
+    KEY `fk_class_classroom_idx` (`classroom_id`),
+    KEY `idx_class_date` (`date`),
+    KEY `idx_class_teacher_date` (`teacher_id`, `date`),
+    KEY `idx_class_group_date` (`group_id`, `date`),
+    CONSTRAINT `chk_day_of_week` CHECK (`day_of_week` BETWEEN 0 AND 6),
+    CONSTRAINT `chk_week_number` CHECK (`week_number` BETWEEN 1 AND 52),
+    CONSTRAINT `fk_class_subject` FOREIGN KEY (`subject_id`) 
+        REFERENCES `subject` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT `fk_class_teacher` FOREIGN KEY (`teacher_id`) 
+        REFERENCES `teacher` (`user_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT `fk_class_group` FOREIGN KEY (`group_id`) 
+        REFERENCES `group` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT `fk_class_classroom` FOREIGN KEY (`classroom_id`) 
+        REFERENCES `classroom` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Таблица изменений расписания
+CREATE TABLE `schedule_change` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `original_class_id` INT NOT NULL,
+    `new_date` DATE DEFAULT NULL,
+    `new_start_time` TIME DEFAULT NULL,
+    `new_classroom_id` INT DEFAULT NULL,
+    `status` ENUM('cancelled', 'moved', 'replaced') NOT NULL,
+    `reason` TEXT,
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `fk_schedule_change_class_idx` (`original_class_id`),
+    KEY `fk_schedule_change_classroom_idx` (`new_classroom_id`),
+    CONSTRAINT `fk_schedule_change_class` FOREIGN KEY (`original_class_id`) 
+        REFERENCES `class` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `fk_schedule_change_classroom` FOREIGN KEY (`new_classroom_id`) 
+        REFERENCES `classroom` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
