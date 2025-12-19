@@ -1,9 +1,3 @@
--- Создание базы данных
-DROP DATABASE IF EXISTS university_schedule;
-CREATE DATABASE university_schedule 
-CHARACTER SET utf8mb4 
-COLLATE utf8mb4_unicode_ci;
-
 USE university_schedule;
 
 -- Таблица пользователей
