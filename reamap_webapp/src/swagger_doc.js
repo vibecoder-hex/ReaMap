@@ -5,6 +5,18 @@ module.exports = {
             title: 'Rea Map',
             version: '1.0.0',
         },
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT'
+                }
+            }
+        },
+        security: [{
+            bearerAuth: []
+        }]
     },
-    apis: [`${__dirname}/index.js`]
+    apis: [`${__dirname}/endpoints.js`]
 };
