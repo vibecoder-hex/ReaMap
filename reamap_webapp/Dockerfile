@@ -5,9 +5,11 @@ WORKDIR /app
 COPY package-lock.json ./
 COPY package.json ./
 
-RUN npm ci --only=production
+RUN npm ci
 
 COPY . .
+
+RUN npx prisma generate
 
 EXPOSE 8080
 

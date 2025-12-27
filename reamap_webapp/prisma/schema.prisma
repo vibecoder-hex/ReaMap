@@ -1,0 +1,127 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  role         Role      @default(student)
+  fullName     String    @map("full_name")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  
+
+  student Student?
+  teacher Teacher?
+}
+model Student {
+  userId           Int     @id @unique @map("user_id")
+  groupId          Int     @map("group_id")
+  studentCardNumber String @unique @map("student_card_number")
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id])
+}
+model Teacher {
+  userId          Int     @id @unique @map("user_id")
+  department      String
+  academicDegree  String? @map("academic_degree")
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  classes Class[]
+}
+
+model Group {
+  id      Int       @id @default(autoincrement())
+  name    String
+  faculty String
+  course  Int
+  students Student[]
+  classes  Class[]
+}
+model Subject {
+  id    Int     @id @default(autoincrement())
+  name  String
+  code  String  @unique
+  classes Class[]
+}
+
+model Classroom {
+  id       Int     @id @default(autoincrement())
+  number   String
+  building String
+  capacity Int
+  type     ClassroomType
+  classes         Class[]
+  scheduleChanges ScheduleChange[] @relation("NewClassroom")
+}
+
+model Class {
+  id          Int        @id @default(autoincrement())
+  subjectId   Int        @map("subject_id")
+  teacherId   Int        @map("teacher_id")
+  groupId     Int        @map("group_id")
+  classroomId Int        @map("classroom_id")
+  type        ClassType
+  date        DateTime   @db.Date
+  startTime   DateTime   @db.Time
+  endTime     DateTime   @db.Time
+  weekNumber  Int?       @map("week_number")
+  dayOfWeek   Int?       @map("day_of_week")
+  subject Subject   @relation(fields: [subjectId], references: [id])
+  teacher Teacher   @relation(fields: [teacherId], references: [userId])
+  group   Group     @relation(fields: [groupId], references: [id])
+  classroom Classroom @relation(fields: [classroomId], references: [id])
+  scheduleChanges ScheduleChange[]
+}
+
+model ScheduleChange {
+  id              Int            @id @default(autoincrement())
+  originalClassId Int            @map("original_class_id")
+  newDate         DateTime?      @db.Date @map("new_date")
+  newStartTime    DateTime?      @db.Time @map("new_start_time")
+  newClassroomId  Int?           @map("new_classroom_id")
+  status          ChangeStatus
+  reason          String?
+  createdAt       DateTime       @default(now()) @map("created_at")
+  originalClass Class      @relation(fields: [originalClassId], references: [id], onDelete: Cascade)
+  newClassroom  Classroom? @relation("NewClassroom", fields: [newClassroomId], references: [id])
+}
+
+enum Role {
+  student
+  teacher
+  admin
+}
+
+enum ClassroomType {
+  lecture
+  practice
+  lab
+  computer
+}
+
+enum ClassType {
+  lecture
+  practice
+  lab
+  seminar
+}
+
+enum ChangeStatus {
+  cancelled
+  moved
+  replaced
+}

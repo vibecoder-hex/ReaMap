@@ -3,7 +3,7 @@ USE university_schedule;
 -- 1. Общая статистика
 SELECT 
     'users' as table_name, 
-    COUNT(*) as count 
+    COUNT(*) as count  
 FROM `user`
 UNION ALL
 SELECT 'students', COUNT(*) FROM `user` WHERE role = 'student'

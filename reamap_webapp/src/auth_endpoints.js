@@ -1,24 +1,12 @@
 const express = require('express');
-const { JWTMiddleware, UserAuthentication, SECRET_KEY, jwt } = require('./auth');
+const { JWTMiddleware, UserAuthentication, SECRET_KEY, jwt } = require('./auth_settings');
 
-const app = express()
+const router = express.Router();
 
-/**
- * @swagger
- * /api/:
- *   get:
- *     summary: Hello World
- *     responses:
- *       200:
- *         description: Success
- */
-app.get('/api/', (req, res) => {
-    res.json({"message": "Hello World"})
-});
 
 /**
  * @swagger
- * /api/login:
+ * /api/users/login:
  *   post:
  *     summary: Аутентификация пользователя
  *     description: Получение JWT токена по учетным данным
@@ -58,29 +46,26 @@ app.get('/api/', (req, res) => {
  *       500:
  *         description: Внутренняя ошибка сервера
  */
-app.post('/api/login/', async (req , res) => {
+router.post('/login', async (req , res) => {
     try {
         const {username, password} = req.body;
-        const user = UserAuthentication.getUser(username);
-        if (!user) {
-            return res.status(401).json({message: "Invalid credentials"});
+        if (!username || !password) {
+            return res.status(400).json({error: "Username and password are required"});
         }
-        if (await UserAuthentication.isPasswordValid(password, user.hashed_password)) {
+        const user = await UserAuthentication.getUser(username);
+        if (!user) {
+            return res.status(403).json({error: "Invalid credentials"});
+        }
             const token = jwt.sign(
                 { userId: user.id },
                 SECRET_KEY,
                 {expiresIn: '1h'}
             );
             res.json({token});
-        }
-        else {
-            res.status(403).json({message: "Invalid credentials"});
-        }
-    }catch (e) {
-        console.error('Login error:', e);
-        return res.status(500).json({message: "Internal server error"});
+    } catch (error) {
+        return res.status(500).json({error: "Internal server error"});
     }
 
 });
 
-module.exports = { app, express };
+module.exports = router;

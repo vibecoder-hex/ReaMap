@@ -4,6 +4,8 @@ services:
     build: .
     ports:
       - "8080:8080"
+    env_file:
+      - .env 
     environment:
       - NODE_ENV=production
   db:
@@ -19,7 +21,6 @@ services:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./sql_scripts:/docker-entrypoint-initdb.d:ro 
 
 volumes:
   mysql_data:

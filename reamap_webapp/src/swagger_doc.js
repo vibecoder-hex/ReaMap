@@ -18,5 +18,5 @@ module.exports = {
             bearerAuth: []
         }]
     },
-    apis: [`${__dirname}/endpoints.js`]
+    apis: [`${__dirname}/auth_endpoints.js`]
 };
