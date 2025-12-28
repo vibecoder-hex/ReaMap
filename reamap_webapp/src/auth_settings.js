@@ -38,9 +38,71 @@ class JWTMiddleware {
     }
 }
 
+class UserRegistration {
+    static checkPasswordLength(password) {
+        if (password.length < 8) {
+            return false;
+        }
+        return true;
+    }
+
+    static comparePasswords(password, confirmPassword) {
+        if (password !== confirmPassword) {
+            return false;
+        }
+        return true;
+    }
+
+    static async hashPassword(password) {
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(password, salt);
+        return hash;
+    }
+    static async createUser(req) {
+        const { username,
+            password,
+            email,
+            role,
+            fullname,
+            groupId,
+            studentCardNumber,
+            department,
+            academicDegree
+            } = req.body;
+        
+        const hashedPassword = await this.hashPassword(password);
+
+        const createData = {
+                username: username,
+                passwordHash: hashedPassword,
+                email: email,
+                role: role,
+                fullName: fullname
+        };
+        if (createData.role === "student") {
+            createData.student = {
+                create: {
+                    groupId: parseInt(groupId),
+                    studentCardNumber: studentCardNumber,
+                }
+            };
+        }
+        if (createData.role === "teacher") {
+            createData.teacher = {
+                create: {
+                    department: department, 
+                    academicDegree: academicDegree
+                }
+            };
+        }
+        const user = await prisma.user.create({data: createData});
+    };
+}
+
 module.exports = {
     UserAuthentication,
     JWTMiddleware,
+    UserRegistration,
     SECRET_KEY,
     jwt
 };
